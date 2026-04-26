@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataNexus AI Chat</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07071a;--sidebar:#0b0b20;--card:#0f0f28;--border:#1a1a35;--border2:#222240;
+  --purple:#7c3aed;--blue:#3b82f6;--cyan:#06b6d4;--pink:#a855f7;
+  --text:#ffffff;--muted:#6b7280;--light:#c4c4d4;--green:#22c55e;--red:#ef4444;--orange:#f97316;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;overflow:hidden}
+#particles{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.sidebar{width:248px;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:100vh;position:relative;z-index:2}
+.sidebar-top{padding:20px 16px 14px}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.brand-logo{width:34px;height:34px;background:linear-gradient(135deg,#7c3aed,#3b82f6);border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;box-shadow:0 0 20px rgba(124,58,237,.45)}
+.brand-name{font-size:16px;font-weight:800;letter-spacing:-.01em}
+.brand-tag{font-size:10px;color:var(--muted);margin-top:1px}
+.new-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px;background:linear-gradient(135deg,#7c3aed,#3b82f6);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;box-shadow:0 4px 16px rgba(124,58,237,.3)}
+.new-btn:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(124,58,237,.4)}
+.nav{padding:10px 8px 0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;font-size:13px;color:var(--muted);cursor:pointer;transition:all .15s;border:1px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,.04);color:var(--light)}
+.nav-item.active{background:rgba(124,58,237,.12);color:#a78bfa;border-color:rgba(124,58,237,.2)}
+.nav-icon{width:18px;text-align:center;font-size:15px;flex-shrink:0}
+.section-lbl{padding:14px 12px 5px;font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.history{flex:1;overflow-y:auto;padding:0 8px}
+.history::-webkit-scrollbar{width:3px}
+.history::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.hist-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-item:hover{background:rgba(255,255,255,.04);color:var(--light)}
+.sidebar-bottom{padding:14px 12px;border-top:1px solid var(--border)}
+.sys-status{display:flex;align-items:center;gap:8px}
+.sys-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;box-shadow:0 0 6px rgba(34,197,94,.5)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.sys-text{font-size:12px;font-weight:500}
+.sys-sub{font-size:11px;color:var(--green);margin-top:1px}
+.stats-row{display:flex;gap:12px;margin-top:10px}
+.stat-chip{flex:1;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.15);border-radius:8px;padding:6px 10px;text-align:center}
+.stat-num{font-size:15px;font-weight:700;color:#a78bfa}
+.stat-lbl{font-size:10px;color:var(--muted);margin-top:1px}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;z-index:1}
+.topbar{padding:12px 28px;display:flex;align-items:center;justify-content:flex-end;border-bottom:1px solid var(--border);background:rgba(7,7,26,.8);backdrop-filter:blur(12px)}
+.assistant-pill{display:flex;align-items:center;gap:8px;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:999px;padding:6px 14px;font-size:12px;color:#a78bfa;font-weight:500}
+.pill-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 40px 0;overflow:hidden}
+.hero{position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:24px}
+.hero-ring{width:200px;height:200px;border-radius:50%;border:1px solid rgba(124,58,237,.2);position:absolute;animation:rotate 20s linear infinite}
+.hero-ring2{width:240px;height:240px;border-radius:50%;border:1px dashed rgba(59,130,246,.15);position:absolute;animation:rotate 30s linear infinite reverse}
+@keyframes rotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.hero-orb{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#06b6d4,#a855f7);display:flex;align-items:center;justify-content:center;font-size:44px;box-shadow:0 0 60px rgba(124,58,237,.5),0 0 120px rgba(124,58,237,.2);animation:float 4s ease-in-out infinite;position:relative;z-index:2}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.orbit-dot{width:10px;height:10px;border-radius:50%;position:absolute;animation:orb 6s linear infinite}
+.orbit-dot:nth-child(1){background:#7c3aed;top:10px;left:50%;box-shadow:0 0 8px rgba(124,58,237,.8)}
+.orbit-dot:nth-child(2){background:#3b82f6;bottom:15px;right:15px;box-shadow:0 0 8px rgba(59,130,246,.8);animation-delay:-2s}
+.orbit-dot:nth-child(3){background:#a855f7;top:40%;left:5px;box-shadow:0 0 8px rgba(168,85,247,.8);animation-delay:-4s}
+@keyframes orb{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.6}}
+.hero-title{font-size:40px;font-weight:900;text-align:center;letter-spacing:-.02em;line-height:1.1;margin-bottom:6px}
+.hero-title span{background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-tagline{font-size:16px;font-weight:600;color:var(--light);text-align:center;margin-bottom:5px}
+.hero-sub{font-size:13px;color:var(--muted);text-align:center;max-width:500px;line-height:1.6;margin-bottom:28px}
+.center-input-box{width:100%;max-width:720px;background:rgba(15,15,40,.9);border:1px solid var(--border2);border-radius:16px;padding:16px 20px;margin-bottom:14px;backdrop-filter:blur(10px);transition:border-color .2s,box-shadow .2s}
+.center-input-box:focus-within{border-color:rgba(124,58,237,.5);box-shadow:0 0 0 3px rgba(124,58,237,.08)}
+.center-input-box input{width:100%;background:none;border:none;outline:none;font-size:14px;color:var(--text);font-family:'Inter',sans-serif}
+.center-input-box input::placeholder{color:var(--muted)}
+.center-input-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.input-tools{display:flex;gap:8px}
+.tool-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:7px;border:1px solid var(--border2);background:none;color:var(--muted);font-size:11px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+.tool-btn:hover{background:rgba(255,255,255,.04);color:var(--light);border-color:rgba(124,58,237,.3)}
+.send-btn{display:flex;align-items:center;gap:7px;padding:8px 20px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#3b82f6);border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;box-shadow:0 4px 14px rgba(124,58,237,.3)}
+.send-btn:hover{transform:scale(1.03);box-shadow:0 6px 20px rgba(124,58,237,.4)}
+.send-btn svg{width:13px;height:13px;fill:#fff}
+.feat-grid{display:flex;gap:12px;max-width:720px;width:100%}
+.feat-card{flex:1;background:rgba(15,15,40,.7);border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all .22s;backdrop-filter:blur(8px)}
+.feat-card:hover{border-color:rgba(124,58,237,.4);background:rgba(124,58,237,.07);transform:translateY(-3px);box-shadow:0 10px 28px rgba(124,58,237,.13)}
+.feat-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px}
+.feat-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.feat-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.suggestions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:720px;margin-top:14px;padding-bottom:16px}
+.sug{padding:7px 14px;border-radius:999px;border:1px solid var(--border2);background:rgba(255,255,255,.03);color:var(--muted);font-size:12px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;white-space:nowrap}
+.sug:hover{border-color:rgba(124,58,237,.45);color:var(--light);background:rgba(124,58,237,.07)}
+.chat-view{display:none;flex-direction:column;flex:1;overflow:hidden}
+.chat-view.active{display:flex}
+.chat-topbar{padding:12px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:rgba(7,7,26,.8);backdrop-filter:blur(12px)}
+.chat-title{font-size:14px;font-weight:500;color:var(--light)}
+.messages{flex:1;overflow-y:auto;padding:28px 60px;display:flex;flex-direction:column;gap:22px}
+.messages::-webkit-scrollbar{width:4px}
+.messages::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.msg{display:flex;gap:12px;align-items:flex-start;animation:msgin .25s ease}
+@keyframes msgin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{flex-direction:row-reverse}
+.bot-av{width:32px;height:32px;background:linear-gradient(135deg,#7c3aed,#3b82f6);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;box-shadow:0 0 12px rgba(124,58,237,.3)}
+.bubble{max-width:70%;font-size:13.5px;line-height:1.75}
+.bubble.bot{color:var(--light)}
+.bubble.user{background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(124,58,237,.2));border:1px solid rgba(124,58,237,.2);border-radius:16px 4px 16px 16px;padding:12px 16px;color:var(--text)}
+.result-card{margin-top:12px;border:1px solid var(--border2);border-radius:12px;overflow:hidden;background:rgba(10,10,30,.5)}
+.result-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(26,26,53,.8);font-size:12px;cursor:pointer;transition:background .15s}
+.result-row:last-child{border-bottom:none}
+.result-row:hover{background:rgba(124,58,237,.05)}
+.rname{font-weight:600;color:#a78bfa;font-size:13px}
+.rdesc{font-size:11px;color:var(--muted);margin-top:2px;max-width:380px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tags{display:flex;gap:4px}
+.tag{font-size:10px;padding:2px 8px;border-radius:999px;font-weight:500}
+.tag.pii{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.tag.ok{background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+.tag.warn{background:rgba(249,115,22,.1);color:#fb923c;border:1px solid rgba(249,115,22,.2)}
+.tag.info{background:rgba(124,58,237,.1);color:#a78bfa;border:1px solid rgba(124,58,237,.2)}
+.tag.critical{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.25)}
+.tag.unknown{background:rgba(107,114,128,.1);color:#9ca3af;border:1px solid rgba(107,114,128,.2)}
+.lineage-wrap{margin-top:12px;background:rgba(7,7,26,.7);border:1px solid var(--border2);border-radius:12px;padding:16px;overflow-x:auto}
+.lineage-flow{display:flex;align-items:center;gap:6px;min-width:max-content}
+.ln-node{background:var(--card);border:1px solid rgba(124,58,237,.25);border-radius:10px;padding:10px 16px;font-size:12px;text-align:center;transition:all .2s}
+.ln-node:hover{border-color:var(--purple);box-shadow:0 0 14px rgba(124,58,237,.18)}
+.ln-node-name{font-weight:600;color:#a78bfa}
+.ln-node-type{font-size:10px;color:var(--muted);margin-top:3px}
+.ln-arrow{color:#7c3aed;font-size:20px;opacity:.6}
+.timeline-wrap{margin-top:12px;border:1px solid var(--border2);border-radius:12px;padding:14px;background:rgba(10,10,30,.5)}
+.tl-row{display:flex;align-items:flex-start;gap:12px;padding:7px 0;border-bottom:1px solid rgba(26,26,53,.6);font-size:12px}
+.tl-row:last-child{border-bottom:none}
+.tl-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.tl-time{color:var(--muted);min-width:82px;font-size:11px}
+.tl-event{color:var(--light)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-size:11px;padding:5px 12px;border-radius:999px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+.chip:hover{border-color:rgba(124,58,237,.45);color:var(--light);background:rgba(124,58,237,.07)}
+.sec-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.typing{display:flex;gap:5px;align-items:center;padding:4px 0}
+.tdot{width:7px;height:7px;border-radius:50%;background:#7c3aed;animation:tb 1.2s infinite}
+.tdot:nth-child(2){animation-delay:.2s}
+.tdot:nth-child(3){animation-delay:.4s}
+@keyframes tb{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
+.bottom-area{padding:14px 60px 20px;background:var(--bg);border-top:1px solid var(--border)}
+.bottom-box{background:rgba(15,15,40,.9);border:1px solid var(--border2);border-radius:14px;padding:13px 18px;transition:border-color .2s,box-shadow .2s}
+.bottom-box:focus-within{border-color:rgba(124,58,237,.45);box-shadow:0 0 0 3px rgba(124,58,237,.07)}
+.bottom-box input{width:100%;background:none;border:none;outline:none;font-size:13.5px;color:var(--text);font-family:'Inter',sans-serif}
+.bottom-box input::placeholder{color:var(--muted)}
+.bottom-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.bottom-tools{display:flex;gap:7px}
+.btool{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:7px;border:1px solid var(--border2);background:none;color:var(--muted);font-size:11px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+.btool:hover{background:rgba(255,255,255,.04);color:var(--light);border-color:rgba(124,58,237,.3)}
+.bsend{display:flex;align-items:center;gap:7px;padding:7px 18px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#3b82f6);border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;box-shadow:0 4px 14px rgba(124,58,237,.25)}
+.bsend:hover{transform:scale(1.03);box-shadow:0 6px 18px rgba(124,58,237,.35)}
+.bsend svg{width:13px;height:13px;fill:#fff}
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+
+<div class="sidebar">
+  <div class="sidebar-top">
+    <div class="brand">
+      <div class="brand-logo"><img src="favicon.png" style="width:24px;height:24px;border-radius:4px;object-fit:cover"></div>
+      <div><div class="brand-name">DataNexus</div><div class="brand-tag">AI Chat</div></div>
+    </div>
+    <button class="new-btn" onclick="showWelcome()">+ New Chat</button>
+  </div>
+  <div class="nav">
+    <div class="nav-item active" onclick="setNav(this);askQ('find customer tables')"><span class="nav-icon">💬</span> Chat</div>
+    <div class="nav-item" onclick="setNav(this);askQ('search data catalog')"><span class="nav-icon">🗄</span> Data Catalog</div>
+    <div class="nav-item" onclick="setNav(this);askQ('show lineage of dim_customer')"><span class="nav-icon">🔗</span> Lineage</div>
+    <div class="nav-item" onclick="setNav(this);askQ('show data quality issues')"><span class="nav-icon">✅</span> Data Quality</div>
+    <div class="nav-item" onclick="setNav(this);askQ('show metrics')"><span class="nav-icon">📊</span> Metrics</div>
+    <div class="nav-item" onclick="setNav(this);askQ('show alerts')"><span class="nav-icon">🔔</span> Alerts</div>
+    <div class="nav-item" onclick="setNav(this);askQ('find pii tables')"><span class="nav-icon">🛡</span> Governance</div>
+  </div>
+  <div class="section-lbl">Recent Chats</div>
+  <div class="history">
+    <div class="hist-item" onclick="askQ('find customer tables')">💬 <span>Customer analytics</span></div>
+    <div class="hist-item" onclick="askQ('show data quality issues')">💬 <span>Data quality check</span></div>
+    <div class="hist-item" onclick="askQ('show lineage of dim_customer')">💬 <span>Lineage of dim_customer</span></div>
+    <div class="hist-item" onclick="askQ('find pii tables')">💬 <span>PII table scan</span></div>
+    <div class="hist-item" onclick="askQ('find sales tables')">💬 <span>Revenue trends</span></div>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="sys-status">
+      <div class="sys-dot"></div>
+      <div><div class="sys-text">System Status</div><div class="sys-sub">All Systems Operational</div></div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-chip"><div class="stat-num">10+</div><div class="stat-lbl">Tables</div></div>
+      <div class="stat-chip"><div class="stat-num">5+</div><div class="stat-lbl">Pipelines</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="assistant-pill">✦ DataNexus AI Assistant <div class="pill-dot"></div></div>
+  </div>
+
+  <div class="welcome" id="welcome-screen">
+    <div class="hero">
+      <div class="hero-ring"></div><div class="hero-ring2"></div>
+      <div class="orbit-dot"></div><div class="orbit-dot"></div><div class="orbit-dot"></div>
+      <div class="hero-orb"><img src="favicon.png" style="width:80px;height:80px;border-radius:50%;object-fit:cover"></div>
+    </div>
+    <div class="hero-title">DataNexus <span>AI</span></div>
+    <div class="hero-tagline">Ask. Discover. Act.</div>
+    <div class="hero-sub">Your intelligent data assistant for catalog, lineage, quality and governance.</div>
+    <div class="center-input-box">
+      <input type="text" id="welcomeInput" placeholder="Ask me anything about your data..." onkeydown="if(event.key==='Enter')sendFromWelcome()"/>
+      <div class="center-input-footer">
+        <div class="input-tools">
+          <button class="tool-btn" onclick="askQ('🔒 PII Scan')">🔒 PII Scan</button>
+          <button class="tool-btn" onclick="askQ('show lineage of dim_customer')">🔗 Lineage</button>
+          <button class="tool-btn" onclick="askQ('show health score of dim_customer')">📊 Health</button>
+        </div>
+        <button class="send-btn" onclick="sendFromWelcome()">Send <svg viewBox="0 0 16 16"><path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11z"/></svg></button>
+      </div>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card" onclick="askQ('find all customer tables')"><div class="feat-icon" style="background:rgba(59,130,246,.15)">🔍</div><div class="feat-name">Search Data</div><div class="feat-desc">Find datasets, tables, and business metrics</div></div>
+      <div class="feat-card" onclick="askQ('show lineage of dim_customer')"><div class="feat-icon" style="background:rgba(124,58,237,.15)">🔗</div><div class="feat-name">Data Lineage</div><div class="feat-desc">Trace data flow and dependencies</div></div>
+      <div class="feat-card" onclick="askQ('show data quality issues')"><div class="feat-icon" style="background:rgba(34,197,94,.12)">✅</div><div class="feat-name">Quality Insights</div><div class="feat-desc">Check data quality and anomalies</div></div>
+      <div class="feat-card" onclick="askQ('what tables exist?')"><div class="feat-icon" style="background:rgba(168,85,247,.12)">✦</div><div class="feat-name">Ask Anything</div><div class="feat-desc">Get answers from your data instantly</div></div>
+    </div>
+    <div class="suggestions">
+      <div class="sug" onclick="askQ('Show me top customer datasets')">Show me top customer datasets</div>
+      <div class="sug" onclick="askQ('Check quality of customer data')">Check quality of customer data</div>
+      <div class="sug" onclick="askQ('What breaks if I delete dim_customer?')">Impact analysis</div>
+      <div class="sug" onclick="askQ('show health score of dim_customer')">Health score</div>
+    </div>
+  </div>
+
+  <div class="chat-view" id="chat-view">
+    <div class="chat-topbar">
+      <img src="favicon.png" style="width:22px;height:22px;border-radius:6px;object-fit:cover">
+      <div class="chat-title" id="chat-title">MetaChat</div>
+    </div>
+    <div class="messages" id="messages"></div>
+    <div class="bottom-area">
+      <div class="bottom-box">
+        <input type="text" id="chatInput" placeholder="Ask me anything about your data..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+        <div class="bottom-footer">
+          <div class="bottom-tools">
+            <button class="btool" onclick="askQ('find pii tables')">🔒 PII</button>
+            <button class="btool" onclick="askQ('show lineage of dim_customer')">🔗 Lineage</button>
+            <button class="btool" onclick="askQ('show health score of dim_customer')">📊 Health</button>
+            <button class="btool" onclick="askQ('what breaks if I delete dim_customer')">💥 Impact</button>
+          </div>
+          <button class="bsend" onclick="sendMsg()">Send <svg viewBox="0 0 16 16"><path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11z"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas=document.getElementById('particles'),ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+const dots=Array.from({length:60},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()*.5+.2}));
+function drawParticles(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  dots.forEach(d=>{d.x+=d.vx;d.y+=d.vy;if(d.x<0||d.x>canvas.width)d.vx*=-1;if(d.y<0||d.y>canvas.height)d.vy*=-1;ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);ctx.fillStyle=`rgba(124,58,237,${d.a})`;ctx.fill()});
+  dots.forEach((a,i)=>dots.slice(i+1).forEach(b=>{const dx=a.x-b.x,dy=a.y-b.y,dist=Math.sqrt(dx*dx+dy*dy);if(dist<120){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(124,58,237,${.08*(1-dist/120)})`;ctx.lineWidth=.5;ctx.stroke()}}));
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight});
+
+const API='http://localhost:8000';
+function setNav(el){document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));el.classList.add('active')}
+function showWelcome(){document.getElementById('welcome-screen').style.display='flex';document.getElementById('chat-view').classList.remove('active');document.getElementById('messages').innerHTML=''}
+function showChat(t){document.getElementById('welcome-screen').style.display='none';document.getElementById('chat-view').classList.add('active');document.getElementById('chat-title').textContent=t||'MetaChat'}
+function sendFromWelcome(){const i=document.getElementById('welcomeInput');const m=i.value.trim();if(!m)return;i.value='';showChat(m.slice(0,40));processMsg(m)}
+function askQ(q){showChat(q.slice(0,45));processMsg(q)}
+function addMsg(role,html){
+  const msgs=document.getElementById('messages');
+  const div=document.createElement('div');div.className=`msg ${role}`;
+  if(role==='bot'){const av=document.createElement('div');av.className='bot-av';av.style.cssText='overflow:hidden';av.innerHTML='<img src="favicon.png" style="width:100%;height:100%;object-fit:cover;border-radius:9px">';div.appendChild(av)}
+  const bub=document.createElement('div');bub.className=`bubble ${role}`;bub.innerHTML=html;
+  div.appendChild(bub);msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;return bub;
+}
+function showTyping(){return addMsg('bot','<div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>')}
+async function sendMsg(){const i=document.getElementById('chatInput');const m=i.value.trim();if(!m)return;i.value='';processMsg(m)}
+
+async function processMsg(msg){
+  addMsg('user',msg);
+  const tb=showTyping();
+  const low=msg.toLowerCase();
+  try{
+    if(low.includes('impact')||low.includes('breaks')||low.includes('affects')||low.includes('downstream')){
+      const t=low.includes('raw_customer')?'raw_customer':low.includes('fact_order')?'fact_order':low.includes('fact_sale')?'fact_sale':'dim_customer';
+      const res=await fetch(`${API}/impact?table=${t}`);
+      const data=await res.json();
+      tb.innerHTML=buildImpact(data);
+    } else if(low.includes('health')||low.includes('score')||low.includes('quality score')){
+      const t=low.includes('raw_customer')?'raw_customer':low.includes('fact_order')?'fact_order':low.includes('fact_sale')?'fact_sale':'dim_customer';
+      const res=await fetch(`${API}/health?table=${t}`);
+      const data=await res.json();
+      tb.innerHTML=buildHealth(data);
+    } else if(low.includes('lineage')){
+      const t=low.includes('raw_customer')?'raw_customer':low.includes('fact_order')?'fact_order':low.includes('fact_sale')?'fact_sale':'dim_customer';
+      const res=await fetch(`${API}/lineage?table=${t}`);
+      const data=await res.json();
+      tb.innerHTML=buildLineage(t, data);
+    } else if(low.includes('time')||low.includes('travel')||low.includes('history')){
+      tb.innerHTML=buildTimeline();
+    } else if(low.includes('quality')||low.includes('issue')||low.includes('alert')||low.includes('anomal')){
+      const res=await fetch(`${API}/quality`);
+      const data=await res.json();
+      tb.innerHTML=buildQuality(data);
+    } else {
+      const res=await fetch(`${API}/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});
+      const data=await res.json();
+      let html='';
+      if(data.reply)html+=`<div style="line-height:1.8;margin-bottom:10px">${data.reply.replace(/\n/g,'<br>')}</div>`;
+      if(data.tables&&data.tables.length>0)html+=buildResults(data.tables,'Related tables');
+      tb.innerHTML=html||'No results found.';
+    }
+  }catch(e){tb.innerHTML='❌ Error connecting to backend. Make sure backend.py is running!'}
+  document.getElementById('messages').scrollTop=999999;
+}
+
+function buildResults(results,title){
+  if(!results||!results.length)return'';
+  let h=`<div class="sec-title">${title}</div><div class="result-card">`;
+  results.slice(0,8).forEach(r=>{
+    const pii=r.name.includes('customer')||r.name.includes('address')||(r.tags&&r.tags.some(t=>t.includes('PII')));
+    h+=`<div class="result-row"><div><div class="rname">${r.name}</div><div class="rdesc">${r.description||'No description'}</div></div><div class="tags">${pii?'<span class="tag pii">PII</span>':''}<span class="tag info">owner: ${r.owner||'Unknown'}</span></div></div>`;
+  });
+  h+=`</div><div class="chips"><div class="chip" onclick="askQ('show lineage of ${results[0]?.name||'dim_customer'}')">Show lineage</div><div class="chip" onclick="askQ('find pii tables')">PII scan</div><div class="chip" onclick="askQ('show data quality issues')">Check quality</div></div>`;
+  return h;
+}
+
+function buildImpact(data){
+  if(data.error) return `<div style="color:#ef4444">⚠️ Error: ${data.error}</div>`;
+  const impactColors={'CRITICAL':'#ef4444','HIGH':'#f97316','MEDIUM':'#eab308'};
+  const color=impactColors[data.impact_level]||'#6b7280';
+  let h=`<div class="sec-title">Impact Analysis — ${data.table}</div>`;
+  h+=`<div style="background:rgba(${data.impact_level==='CRITICAL'?'239,68,68':data.impact_level==='HIGH'?'249,115,22':'234,179,8'},.1);border:1px solid ${color};border-radius:12px;padding:16px;margin-bottom:12px">`;
+  h+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:24px">${data.impact_level==='CRITICAL'?'🚨':data.impact_level==='HIGH'?'⚠️':'⚡'}</span><span style="font-size:16px;font-weight:700;color:${color}">Impact Level: ${data.impact_level}</span></div>`;
+  h+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">`;
+  h+=`<div style="background:rgba(255,255,255,.05);padding:10px;border-radius:8px"><div style="font-size:24px;font-weight:700;color:#a78bfa">${data.downstream_tables}</div><div style="font-size:11px;color:#6b7280;margin-top:2px">Downstream Tables</div></div>`;
+  h+=`<div style="background:rgba(255,255,255,.05);padding:10px;border-radius:8px"><div style="font-size:24px;font-weight:700;color:#60a5fa">${data.affected_dashboards}</div><div style="font-size:11px;color:#6b7280;margin-top:2px">BI Dashboards</div></div>`;
+  h+=`<div style="background:rgba(255,255,255,.05);padding:10px;border-radius:8px"><div style="font-size:24px;font-weight:700;color:#34d399">${data.affected_pipelines}</div><div style="font-size:11px;color:#6b7280;margin-top:2px">Pipelines</div></div>`;
+  h+=`<div style="background:rgba(255,255,255,.05);padding:10px;border-radius:8px"><div style="font-size:24px;font-weight:700;color:#fbbf24">${data.affected_teams}</div><div style="font-size:11px;color:#6b7280;margin-top:2px">Teams</div></div>`;
+  h+=`</div></div>`;
+  h+=`<div class="sec-title" style="margin-top:12px">Affected Assets</div><div class="result-card">`;
+  data.detailed_impact.forEach(item=>{
+    const tagClass=item.impact==='CRITICAL'?'critical':item.impact==='HIGH'?'warn':'ok';
+    h+=`<div class="result-row"><div><div class="rname">${item.type} — ${item.name}</div></div><div class="tags"><span class="tag ${tagClass}">${item.impact}</span></div></div>`;
+  });
+  h+=`</div><div class="chips"><div class="chip" onclick="askQ('show lineage of ${data.table}')">View Lineage</div><div class="chip" onclick="askQ('show health of ${data.table}')">Check Health</div></div>`;
+  return h;
+}
+
+function buildHealth(data){
+  if(data.error) return `<div style="color:#ef4444">⚠️ Error: ${data.error}</div>`;
+  const score=data.overall_score;
+  const healthColor=score>=90?'#22c55e':score>=80?'#f97316':'#ef4444';
+  const healthStatus=score>=90?'Excellent':score>=80?'Good':'Fair';
+  let h=`<div class="sec-title">Data Health Score — ${data.table}</div>`;
+  h+=`<div style="background:rgba(34,197,94,.1);border:1px solid #22c55e;border-radius:12px;padding:16px;margin-bottom:12px">`;
+  h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">`;
+  h+=`<div><div style="font-size:36px;font-weight:900;color:${healthColor}">${score}/100</div><div style="font-size:12px;color:#6b7280;margin-top:2px">${healthStatus}</div></div>`;
+  h+=`<div style="font-size:24px">${data.trend}</div></div>`;
+  h+=`<div style="height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden"><div style="height:100%;width:${score}%;background:${healthColor};border-radius:4px"></div></div>`;
+  h+=`</div>`;
+  h+=`<div class="sec-title">Component Scores</div>`;
+  h+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">`;
+  Object.entries(data.scores).forEach(([key,val])=>{
+    const barColor=val>=90?'#22c55e':val>=80?'#f97316':'#ef4444';
+    const label=key.charAt(0).toUpperCase()+key.slice(1);
+    h+=`<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px">`;
+    h+=`<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:12px;font-weight:600">${label}</span><span style="font-size:13px;font-weight:700;color:${barColor}">${val}</span></div>`;
+    h+=`<div style="height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden"><div style="height:100%;width:${val}%;background:${barColor}"></div></div>`;
+    h+=`</div>`;
+  });
+  h+=`</div>`;
+  h+=`<div class="sec-title">Issues Detected</div>`;
+  if(data.issues.length>0){
+    h+=`<div class="result-card">`;
+    data.issues.forEach(issue=>{
+      const tagClass=issue.severity==='warning'?'warn':issue.severity==='critical'?'critical':'info';
+      h+=`<div class="result-row"><div><div class="rname">${issue.message}</div></div><div class="tags"><span class="tag ${tagClass}">${issue.severity.toUpperCase()}</span></div></div>`;
+    });
+    h+=`</div>`;
+  }
+  h+=`<div class="chips"><div class="chip" onclick="askQ('show lineage of ${data.table}')">View Lineage</div><div class="chip" onclick="askQ('what breaks if I delete ${data.table}')">Impact Analysis</div></div>`;
+  return h;
+}
+
+function buildLineage(table, data){
+  let h=`<div class="sec-title">Lineage — ${table} (via OpenMetadata API)</div>`;
+  // Use real data if available
+  if(data.edges && data.edges.length > 0){
+    h+=`<div class="lineage-wrap"><div class="lineage-flow">`;
+    // Build chain from edges
+    const visited=new Set();
+    data.edges.forEach((e,i)=>{
+      if(!visited.has(e.from)){visited.add(e.from);h+=`<div class="ln-node"><div class="ln-node-name">${e.from}</div><div class="ln-node-type">source</div></div><div class="ln-arrow">→</div>`}
+    });
+    const last=data.edges[data.edges.length-1];
+    if(last)h+=`<div class="ln-node"><div class="ln-node-name">${last.to}</div><div class="ln-node-type">target</div></div>`;
+    h+=`</div></div>`;
+  } else {
+    // Fallback visual
+    const base=table.replace('dim_','').replace('fact_','').replace('raw_','');
+    const nodes=[{name:'raw_'+base,type:'Source DB'},{name:'staging_'+base,type:'dbt model'},{name:table,type:'Warehouse'},{name:'sales_dashboard',type:'BI Report'}];
+    h+=`<div class="lineage-wrap"><div class="lineage-flow">`;
+    nodes.forEach((n,i)=>{h+=`<div class="ln-node"><div class="ln-node-name">${n.name}</div><div class="ln-node-type">${n.type}</div></div>`;if(i<nodes.length-1)h+=`<div class="ln-arrow">→</div>`});
+    h+=`</div></div>`;
+  }
+  h+=`<div class="chips"><div class="chip" onclick="askQ('show data quality issues')">Check quality</div><div class="chip" onclick="askQ('time travel ${table}')">Time travel</div></div>`;
+  return h;
+}
+
+function buildQuality(data){
+  let h=`<div class="sec-title">Data Quality — via OpenMetadata API</div>`;
+  if(data.results && data.results.length > 0){
+    h+=`<div class="result-card">`;
+    data.results.slice(0,6).forEach(r=>{
+      const status=r.status?.toLowerCase()||'unknown';
+      const tagClass=status==='success'?'ok':status==='failed'?'critical':status==='aborted'?'warn':'unknown';
+      h+=`<div class="result-row"><div><div class="rname">${r.name||'Test'}</div><div class="rdesc">${r.result||r.table||'No details'}</div></div><div class="tags"><span class="tag ${tagClass}">${status}</span></div></div>`;
+    });
+    h+=`</div>`;
+  } else {
+    // Fallback
+    h+=`<div class="result-card">
+      <div class="result-row"><div><div class="rname">raw_customer</div><div class="rdesc">Null rate 12% in email column</div></div><div class="tags"><span class="tag warn">warning</span></div></div>
+      <div class="result-row"><div><div class="rname">fact_order</div><div class="rdesc">Row count dropped 30% today</div></div><div class="tags"><span class="tag critical">critical</span></div></div>
+      <div class="result-row"><div><div class="rname">dim_customer</div><div class="rdesc">Quality score: 98%</div></div><div class="tags"><span class="tag ok">healthy</span></div></div>
+      <div class="result-row"><div><div class="rname">fact_sale</div><div class="rdesc">Quality score: 99%</div></div><div class="tags"><span class="tag ok">healthy</span></div></div>
+    </div>`;
+  }
+  h+=`<div class="chips"><div class="chip" onclick="askQ('show lineage of fact_order')">Show lineage</div><div class="chip" onclick="askQ('time travel fact_order')">Time travel</div></div>`;
+  return h;
+}
+
+function buildTimeline(){
+  const ev=[{t:'Today 9am',e:'Schema change: added column discount_code',c:'#a78bfa'},{t:'Yesterday',e:'Quality score dropped from 99% to 94%',c:'#f87171'},{t:'2 days ago',e:'Ownership transferred to data-eng team',c:'#7c3aed'},{t:'3 days ago',e:'New PII tag applied to email column',c:'#f87171'},{t:'5 days ago',e:'dbt model refresh — 2.1M rows ingested',c:'#4ade80'}];
+  let h=`<div class="sec-title">Time-travel log — last 7 days</div><div class="timeline-wrap">`;
+  ev.forEach(e=>h+=`<div class="tl-row"><div class="tl-dot" style="background:${e.c}"></div><span class="tl-time">${e.t}</span><span class="tl-event">${e.e}</span></div>`);
+  h+=`</div><div class="chips"><div class="chip" onclick="askQ('what caused the quality drop?')">What caused drop?</div><div class="chip" onclick="askQ('show lineage of fact_order')">Show lineage</div></div>`;
+  return h;
+}
+</script>
+</body>
+</html>
