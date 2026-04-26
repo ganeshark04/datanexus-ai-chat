@@ -408,7 +408,7 @@ For issues, questions, or suggestions:
 
 ## 📸 Demo Video
 
-[Coming soon - YouTube link to be added]
+https://youtu.be/QzkgCAnJK3A
 
 Check out the demo video to see DataNexus AI Chat in action!
 
